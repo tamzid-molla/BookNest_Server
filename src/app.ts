@@ -3,6 +3,8 @@ import globalErrorHandler from "./middlewares/globalErrorHandler.js";
 import userRouter from "./users/userRouter.js";
 
 const app = express();
+//body parser
+app.use(express.json());
 
 app.get("/", (req, res) => {
     res.json({message:"Server running good"})
