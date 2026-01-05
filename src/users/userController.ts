@@ -42,4 +42,32 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export { createUser };
+const loginUser = async (req: Request, res: Response, next: NextFunction) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return next(createHttpError(400,"All fields are required"))
+    };
+    try {
+        //user exists or not 
+    const user = await userModel.findOne({ email });
+    if (!user) {
+        return next(createHttpError(404,"User not found"))
+    };
+    //match password 
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+        return next(createHttpError(400,"Email or Password wrong"))
+    }
+    //generate token
+    const token = jwt.sign({ sub: user._id }, config.jwt as string, { expiresIn: "7d" });
+    res.status(200).json({
+        _id: user._id,
+        token,
+        message:"Login successfully"
+    })
+    } catch (error) {
+        next(error)
+    }
+}
+
+export { createUser ,loginUser};
