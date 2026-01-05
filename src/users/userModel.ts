@@ -4,22 +4,28 @@ import type { IUser } from "./userTypes.js";
 const userSchema = new mongoose.Schema<IUser>({
     name: {
         type: String,
-        require: true,
+        requiredd: true,
         minlength: [3, "Name minimum 3 character longer"]
     },
     email: {
         type: String,
-        require: true,
+        required: true,
         unique: true,
     },
     password: {
         type: String,
-        require: true,
+        required: true,
     },
     image: {
         type: String,
-        require: true,
+        required: true,
     },
+    role: {
+        type: String,
+        enum: ["user", "moderator", "admin"],
+        default: "user",
+        required:true,
+    }
 }, { timestamps: true });
 
 //create model 
