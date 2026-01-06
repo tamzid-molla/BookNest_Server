@@ -57,9 +57,14 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
         return next(createHttpError(400,"Email or Password wrong"))
-    }
+      }
+      //create payload 
+      const payload = {
+        email: user.email,
+        role:user.role,
+      }
     //generate token
-    const token = jwt.sign({ sub: user._id }, config.jwt as string, { expiresIn: "7d" });
+    const token = jwt.sign(payload, config.jwt as string, { expiresIn: "7d" });
     res.status(200).json({
         _id: user._id,
         token,
