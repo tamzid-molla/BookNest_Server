@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema<IUser>({
     },
     image: {
         type: String,
-        required: true,
+        default:""
     },
     role: {
         type: String,

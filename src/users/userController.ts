@@ -6,9 +6,9 @@ import userModel from "./userModel.js";
 import { config } from "../config/config.js";
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
-  const { name, email, password, image } = req.body;
+  const { name, email, password, } = req.body;
   //validate fields
-  if (!name || !email || !password || !image) {
+  if (!name || !email || !password) {
     const error = createHttpError(400, "All fields are required");
     return next(error);
   }
@@ -27,7 +27,6 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
       name,
       email,
       password: hashedPassword,
-      image,
     });
     //generate token
     const token = jwt.sign({ sub: newUser._id }, config.jwt as string, { expiresIn: "7d" });
@@ -43,7 +42,7 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const loginUser = async (req: Request, res: Response, next: NextFunction) => {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
     if (!email || !password) {
         return next(createHttpError(400,"All fields are required"))
     };
@@ -52,7 +51,7 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
     const user = await userModel.findOne({ email });
     if (!user) {
         return next(createHttpError(404,"User not found"))
-    };
+      };
     //match password 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
@@ -64,7 +63,8 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
         role:user.role,
       }
     //generate token
-    const token = jwt.sign(payload, config.jwt as string, { expiresIn: "7d" });
+      const token = jwt.sign(payload, config.jwt as string, { expiresIn: "7d" });
+    
     res.status(200).json({
         _id: user._id,
         token,

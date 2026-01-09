@@ -45,4 +45,15 @@ const addBook = async (req: Request, res: Response, next: NextFunction) => {
   };
 };
 
-export { addBook };
+const books = async (req: Request, res: Response, next: NextFunction)=>{
+  try {
+    const books = await bookModel.find();
+    res.status(200).json({
+      books,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export { addBook,books };
