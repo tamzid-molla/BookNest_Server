@@ -107,4 +107,19 @@ const userProfile = async (req: Request, res: Response, next: NextFunction) => {
 
 } 
 
-export { createUser ,loginUser,userProfile};
+
+const logoutUser = async (req: Request, res: Response, next:NextFunction) => {
+  try {
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/"
+    });
+    res.status(200).json({message:"Logout successfully"})
+  } catch (error) {
+    next(error)
+  }
+}
+
+export { createUser, loginUser, userProfile, logoutUser };
