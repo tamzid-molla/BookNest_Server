@@ -4,8 +4,11 @@ import globalErrorHandler from "./middlewares/globalErrorHandler.js";
 import userRouter from "./users/userRouter.js";
 import bookRouter from "./books/bookRouter.js";
 import { config } from "./config/config.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
+//cookie parser
+app.use(cookieParser())
 //body parser
 app.use(express.json());
 app.use(

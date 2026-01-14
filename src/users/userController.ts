@@ -48,31 +48,63 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
     };
     try {
         //user exists or not 
-    const user = await userModel.findOne({ email });
+      const user = await userModel.findOne({ email }).select("+password");
     if (!user) {
         return next(createHttpError(404,"User not found"))
       };
     //match password 
-    const isMatch = await bcrypt.compare(password, user.password);
+      const isMatch = await bcrypt.compare(password, user?.password);
     if (!isMatch) {
         return next(createHttpError(400,"Email or Password wrong"))
       }
       //create payload 
-      const payload = {
+      const payload: {
+        email: string;
+        role: string;
+      } = {
         email: user.email,
         role:user.role,
       }
     //generate token
       const token = jwt.sign(payload, config.jwt as string, { expiresIn: "7d" });
     
-    res.status(200).json({
-        _id: user._id,
-        token,
-        message:"Login successfully"
-    })
+    res
+  .cookie("accessToken", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  })
+  .status(200)
+  .json({
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    message: "Login successfully",
+  });
     } catch (error) {
+      console.log(error);
         next(error)
     }
 }
 
-export { createUser ,loginUser};
+const userProfile = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const token = req.cookies?.accessToken;
+    if (!token) {
+      return res.status(401).json({message:"Not authenticated"})
+    };
+    //verify 
+    const decoded = jwt.verify(token, config.jwt as string) as { email: string, role: string };
+    //find user 
+    const user = await userModel.findOne({ email: decoded?.email });
+    if(!user) return res.status(404).json({message:"User not found"})
+    
+    res.status(200).json(user);
+  } catch (error) {
+    next(error)
+  }
+
+} 
+
+export { createUser ,loginUser,userProfile};
